@@ -11,6 +11,7 @@ interface Prompt {
 interface GenerationParams {
   modelId?: string;
   imageSize: string;
+  aspectRatio?: string;
   seed?: number;
   style?: string;
 }

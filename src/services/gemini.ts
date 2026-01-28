@@ -50,17 +50,28 @@ export async function generateImage(
     // Add prompt
     parts.push({ text: prompt });
 
-    const requestBody = {
+    const requestBody: any = {
         contents: [
             {
                 parts,
             },
         ],
         generationConfig: {
-            responseModalities: ['TEXT', 'IMAGE'],
+            responseModalities: ['IMAGE'],
             ...(params?.seed && { seed: params.seed }),
         },
     };
+
+    // Only add imageConfig if aspect ratio or size is specified
+    const hasImageConfig = params?.aspectRatio || (params?.imageSize && model.includes('gemini-3'));
+    if (hasImageConfig) {
+        requestBody.generationConfig.imageConfig = {
+            ...(params?.aspectRatio && { aspectRatio: params.aspectRatio }),
+            ...(model.includes('gemini-3') && params?.imageSize === '1024x1024' && { imageSize: '1K' }),
+            ...(model.includes('gemini-3') && params?.imageSize === '2048x2048' && { imageSize: '2K' }),
+            ...(model.includes('gemini-3') && params?.imageSize === '4096x4096' && { imageSize: '4K' }),
+        };
+    }
 
     const response = await fetch(url, {
         method: 'POST',

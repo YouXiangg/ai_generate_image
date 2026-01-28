@@ -1,11 +1,13 @@
 import { useRef, useState, type DragEvent } from 'react';
 
 interface ImageUploadProps {
+    title: string;
+    number: string;
     image: string | null;
     onImageChange: (image: string | null) => void;
 }
 
-export function ImageUpload({ image, onImageChange }: ImageUploadProps) {
+export function ImageUpload({ title, number, image, onImageChange }: ImageUploadProps) {
     const [isDragOver, setIsDragOver] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -63,8 +65,8 @@ export function ImageUpload({ image, onImageChange }: ImageUploadProps) {
     return (
         <div>
             <div className="section-header">
-                <span className="section-number">1</span>
-                <span className="section-title">Source Image</span>
+                <span className="section-number">{number}</span>
+                <span className="section-title">{title}</span>
             </div>
             <div
                 className={`upload-zone ${isDragOver ? 'dragover' : ''} ${image ? 'has-image' : ''}`}

@@ -77,6 +77,25 @@ export function AdvancedSettings({ params, onChange }: AdvancedSettingsProps) {
                         />
                     </div>
                     <div className="form-group">
+                        <label className="form-label">Aspect Ratio</label>
+                        <select
+                            className="select"
+                            value={params.aspectRatio || '1:1'}
+                            onChange={(e) => onChange({ ...params, aspectRatio: e.target.value })}
+                        >
+                            <option value="21:9">21:9 (Cinematic)</option>
+                            <option value="16:9">16:9 (Widescreen)</option>
+                            <option value="4:3">4:3 (Classic)</option>
+                            <option value="3:2">3:2 (Photography)</option>
+                            <option value="1:1">1:1 (Square)</option>
+                            <option value="9:16">9:16 (Story/TikTok)</option>
+                            <option value="3:4">3:4 (Poster)</option>
+                            <option value="2:3">2:3 (Magazine)</option>
+                            <option value="5:4">5:4</option>
+                            <option value="4:5">4:5</option>
+                        </select>
+                    </div>
+                    <div className="form-group">
                         <label className="form-label">Style</label>
                         <select
                             className="select"

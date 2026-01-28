@@ -15,9 +15,12 @@ interface GenerateTabProps {
 
 export function GenerateTab({ initialPrompt, onClearInitialPrompt }: GenerateTabProps) {
     const [sourceImage, setSourceImage] = useState<string | null>(null);
+    const [referenceImage, setReferenceImage] = useState<string | null>(null);
+    const [imageMode, setImageMode] = useState<'source' | 'reference'>('source');
     const [prompt, setPrompt] = useState(initialPrompt || '');
     const [params, setParams] = useState<GenerationParams>({
         imageSize: DEFAULT_MODEL.supportedSizes[0],
+        aspectRatio: '1:1',
         style: 'natural',
     });
     const [result, setResult] = useState<string | null>(null);
@@ -49,7 +52,15 @@ export function GenerateTab({ initialPrompt, onClearInitialPrompt }: GenerateTab
         setResult(null);
 
         try {
-            const imageUrl = await generateImage(apiKey, prompt, sourceImage, params);
+            let finalPrompt = prompt;
+            let finalImage = sourceImage;
+
+            if (imageMode === 'reference' && referenceImage) {
+                finalPrompt = `The following photo is a reference idea of the image, you should capture the characteristic, at the same time, follow the prompt provided to change/modify/regenerate the image, here is the reference image for you to follow:\n\nUser Prompt: ${prompt}`;
+                finalImage = referenceImage;
+            }
+
+            const imageUrl = await generateImage(apiKey, finalPrompt, finalImage, params);
             setResult(imageUrl);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to generate image');
@@ -76,8 +87,38 @@ export function GenerateTab({ initialPrompt, onClearInitialPrompt }: GenerateTab
     return (
         <div className="generate-layout">
             <div className="generate-left">
-                <div className="card">
-                    <ImageUpload image={sourceImage} onImageChange={setSourceImage} />
+                <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                    <div className="image-tabs">
+                        <button
+                            className={`image-tab ${imageMode === 'source' ? 'active' : ''}`}
+                            onClick={() => setImageMode('source')}
+                        >
+                            Source Image
+                        </button>
+                        <button
+                            className={`image-tab ${imageMode === 'reference' ? 'active' : ''}`}
+                            onClick={() => setImageMode('reference')}
+                        >
+                            Reference Photo (Optional)
+                        </button>
+                    </div>
+                    <div style={{ padding: 'var(--space-lg)' }}>
+                        {imageMode === 'source' ? (
+                            <ImageUpload
+                                title="Source Image"
+                                number="1"
+                                image={sourceImage}
+                                onImageChange={setSourceImage}
+                            />
+                        ) : (
+                            <ImageUpload
+                                title="Reference Photo"
+                                number="Ref"
+                                image={referenceImage}
+                                onImageChange={setReferenceImage}
+                            />
+                        )}
+                    </div>
                 </div>
                 <div className="card">
                     <PromptInput value={prompt} onChange={setPrompt} />
